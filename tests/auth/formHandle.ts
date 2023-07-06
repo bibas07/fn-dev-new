@@ -68,17 +68,31 @@ export async function raiseExpenseDialog(page, dialogBox) {
     await optionElement.fill(value);
   }
 }
-export async function expenseApproval(page, portal, invoice, action, comment) {
+export async function expenseApproval(
+  page,
+  portal,
+  invoice,
+  action,
+  comment,
+  noCmt: boolean
+) {
   await page.locator(".hide-scrollbar-business");
   const portalLocator = await page.locator(".text-color-primary");
   await portalLocator.filter({ hasText: portal }).click();
   await page.getByText("ExpensesExpenses").click();
   await page.getByRole("link", { name: `${invoice}` }).click();
-  await page.getByRole("button", { name: `${action}` }).click();
-
-  await page.getByPlaceholder("Write a comment...").click();
-  await page.getByPlaceholder("Write a comment...").fill(`${comment}`);
-  await page.getByRole("button", { name: `${action}` }).click();
   await page.goForward();
+  await page.waitForTimeout(2000);
+
+  if (action === "Approve" && noCmt === true) {
+    const stickyBottom = await page.locator("div.sticky.bottom-0");
+    await stickyBottom.locator('button[aria-haspopup="menu"]').click();
+    await page.locator('div[role="menu"] span.capitalize').click();
+  } else if (action === "Reject" || (action === "Approve" && noCmt === false)) {
+    await page.getByRole("button", { name: `${action}` }).click();
+    await page.getByPlaceholder("Write a comment...").click();
+    await page.getByPlaceholder("Write a comment...").fill(`${comment}`);
+    await page.getByRole("button", { name: `${action}` }).click();
+  }
   await page.waitForTimeout(1200);
 }

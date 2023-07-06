@@ -172,7 +172,7 @@ test("FinOps Raise Expense Right Form", async ({ page }) => {
     },
     {
       title: "POC Email",
-      value: "1",
+      value: "2",
     },
     {
       title: "Pay To",
@@ -224,13 +224,21 @@ test("FinOps Raise Expense Right Form", async ({ page }) => {
   await page.waitForTimeout(2000);
 });
 
-test("Approve and Reject by Vendor", async ({ page }) => {
+// Approve and Reject of expense by PoC/Approver
+test("Approve and Reject by PoC", async ({ page }) => {
   await page.goto("https://fn-new-web.vercel.app/login");
   await signIn(page, "abhishek@drivezy.com", "123456");
   await page.getByRole("button", { name: "Next" }).click();
-  await page.goForward();
+  await page.waitForTimeout(1200);
 
-  await expenseApproval(page, "BD Test", "EXPVN104", "Approve", "Working fine");
+  await expenseApproval(
+    page,
+    "BD Test",
+    "EXPVN118",
+    "Reject",
+    "good fine",
+    true //true for approve without comment
+  );
 });
 test("Expenses Side Menu", async ({ page }) => {
   await page.goto("https://fn-new-web.vercel.app/e/f/expenses");
