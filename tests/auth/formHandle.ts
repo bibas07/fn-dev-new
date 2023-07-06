@@ -1,5 +1,6 @@
 import { test, expect } from "@playwright/test";
 import { alertMessage } from "./errorHandle";
+import { Page } from "playwright-core";
 
 export async function signupFormSubmit(
   page,
@@ -39,83 +40,17 @@ export async function raiseExpenseForm(page, FormFields) {
   }
 }
 
-export async function selectField(page, selectData) {
+export async function selectField(page: Page, selectData) {
   for (const data of selectData) {
     const { title, value } = data;
-    for (let i = 3; i < 7; i++) {
-      const selectElement = await page.locator(
-        `div.text-sm:has-text("${title}") .selectbox-control`
-      );
-      const container = await page.locator(`div.selectbox-container `, {
-        has: selectElement,
-      });
-      await selectElement.click();
-      console.log(container);
-      await container.waitForSelector(".selectbox-menuportal");
+    await page
+      .locator(`div.text-sm:has-text("${title}") ~ div.form-control`)
+      .click();
+    await page.waitForSelector(".selectbox-container [class$='-menu']", {
+      state: "attached",
+    });
 
-      await container.locator(`div#react-select-${i}-option-${value}`).click();
-    }
-
-    // try {
-    //   if ((await title) === "Department") {
-    //     const selectElement = await page.$(
-    //       `div.text-sm:has-text("${title}") div.selectbox-control input[type="text"]`
-    //     );
-    //     await selectElement.click();
-
-    //     const optionElement = await page.locator(
-    //       `#react-select-3-option-${value}`
-    //     );
-    //     await optionElement.click();
-    //   }
-    //   if ((await title) === "Expense Head") {
-    //     const selectElement = await page.locator(
-    //       `div.text-sm:has-text("${title}") div.selectbox-control input[type="text"]`
-    //     );
-    //     await selectElement.click();
-
-    //     const optionElement = await page.locator(
-    //       `#react-select-4-option-${value}`
-    //     );
-    //     await optionElement.click();
-    //   }
-    //   if ((await title) === "POC Email") {
-    //     const selectElement = await page.locator(
-    //       `div.text-sm:has-text("${title}") div.selectbox-control input[type="text"]`
-    //     );
-    //     await selectElement.click();
-
-    //     const optionElement = await page.locator(
-    //       `#react-select-5-option-${value}`
-    //     );
-    //     await optionElement.click();
-    //   }
-    //   if (title === "Pay To") {
-    //     await page.waitForTimeout(1000);
-    //     const selectElement = await page.locator(
-    //       `div.text-sm:has-text("${title}") div.selectbox-control input[type="text"]`
-    //     );
-    //     await selectElement.click();
-
-    //     const optionElement = await page.locator(
-    //       `#react-select-6-option-${value}`
-    //     );
-    //     await optionElement.click();
-    //   }
-    //   if (title === "City") {
-    //     const selectElement = await page.locator(
-    //       `div.text-sm:has-text("${title}") div.selectbox-control input[type="text"]`
-    //     );
-    //     await selectElement.click();
-
-    //     const optionElement = await page.locator(
-    //       `#react-select-7-option-${value}`
-    //     );
-    //     await optionElement.click();
-    //   }
-    // } catch (error) {
-    //   console.log("Error occured", error);
-    // }
+    await page.locator(`div[id$="-option-${value}"]`).click();
   }
 }
 
@@ -132,4 +67,18 @@ export async function raiseExpenseDialog(page, dialogBox) {
     );
     await optionElement.fill(value);
   }
+}
+export async function expenseApproval(page, portal, invoice, action, comment) {
+  await page.locator(".hide-scrollbar-business");
+  const portalLocator = await page.locator(".text-color-primary");
+  await portalLocator.filter({ hasText: portal }).click();
+  await page.getByText("ExpensesExpenses").click();
+  await page.getByRole("link", { name: `${invoice}` }).click();
+  await page.getByRole("button", { name: `${action}` }).click();
+
+  await page.getByPlaceholder("Write a comment...").click();
+  await page.getByPlaceholder("Write a comment...").fill(`${comment}`);
+  await page.getByRole("button", { name: `${action}` }).click();
+  await page.goForward();
+  await page.waitForTimeout(1200);
 }
