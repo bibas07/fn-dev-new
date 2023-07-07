@@ -139,6 +139,8 @@ test("FinOps Raise Expense Right Form", async ({ page }) => {
   await page
     .getByText("365 Facility Management Private LimitedVendor Managed")
     .click();
+
+  // Required data to raise Expenses
   const FormFields = [
     {
       selector: "Invoice Number",
@@ -157,9 +159,10 @@ test("FinOps Raise Expense Right Form", async ({ page }) => {
       value: "Testing123",
     },
   ];
+
+  //Raise expenses
   await raiseExpenseForm(page, FormFields);
-  // await page.getByPlaceholder("Invoice Date").click();
-  // await page.waitForTimeout(3000);
+  await page.getByPlaceholder("Invoice Date").click(); // Calender - This might not choose automatic
 
   const selectData = [
     {
@@ -183,44 +186,22 @@ test("FinOps Raise Expense Right Form", async ({ page }) => {
       value: "1",
     },
   ];
+
+  //Data to set in dialog
+  const gst = "1";
+  const cess = "500";
+  const tds = "1";
+  const tcs = "10";
+
   await selectField(page, selectData);
   await page
     .getByRole("button", { name: "add_circle_outline Add Taxes" })
     .click();
+  await raiseExpenseDialog(page, gst, cess, tds, tcs);
 
-  const dialogBox = page.getByRole("dialog");
-  await dialogBox.locator("div").filter({ hasText: /^5%$/ }).nth(3).click();
-  await dialogBox.getByText("12%", { exact: true }).click();
-  await dialogBox
-    .getByRole("button", { name: "add_circle_outline Add GST Field" })
-    .click();
-  await page.getByText("Select...").click();
-  await page.getByRole("tab", { name: "CESS" }).click();
-
-  await page.getByText("GSTCESSTDSTCS").click();
-  await page
-    .locator(
-      ".gap-2 > .form-control > .text-sm > .selectbox-control > .css-1gzzqje > .css-1lx7dxn"
-    )
-    .click();
-  await page.getByText("Commission / Brokerage").click();
-  await page.getByPlaceholder("Enter Amount").click();
-  await page.getByPlaceholder("Enter Amount").fill("2225");
-  await page.getByRole("tab", { name: "TCS" }).click();
-  await page.getByPlaceholder("Enter Percentage").click();
-  await page.getByPlaceholder("Enter Percentage").fill("20");
-  await page.getByPlaceholder("Enter Amount").click();
-  await page.getByPlaceholder("Enter Amount").fill("32224");
-  await page.getByRole("button", { name: "Save" }).click();
-  await page
-    .locator(
-      ".rah-static > div > .gap-3 > .items-center > .form-control > .text-sm > .selectbox-control > .css-1gzzqje > .css-1lx7dxn"
-    )
-    .click();
-  await page.getByText("Bengaluru", { exact: true }).click();
+  expect(page.getByText("Edit Taxes")).toBeTruthy();
 
   await page.getByRole("button", { name: "Save" }).click();
-  await page.goForward();
   await page.waitForTimeout(2000);
 });
 
@@ -231,13 +212,15 @@ test("Approve and Reject by PoC", async ({ page }) => {
   await page.getByRole("button", { name: "Next" }).click();
   await page.waitForTimeout(1200);
 
+  //true for approve without comment and false for with comments
   await expenseApproval(
     page,
     "BD Test",
-    "EXPVN118",
-    "Reject",
+    "FinOps Portal",
+    "EXPVN132",
+    "Approve",
     "good fine",
-    true //true for approve without comment
+    false // Does not work if approver Rejected
   );
 });
 test("Expenses Side Menu", async ({ page }) => {

@@ -54,31 +54,46 @@ export async function selectField(page: Page, selectData) {
   }
 }
 
-export async function raiseExpenseDialog(page, dialogBox) {
-  for (const dialog of dialogBox) {
-    const { value } = dialog;
-    const selectElement = await page.$(
-      'div.selectbox-control input[type="text"]'
-    );
-    await selectElement.click();
+//Add value inside dialog box
+export async function raiseExpenseDialog(page: Page, gst, cess, tds, tcs) {
+  const dialogBox = page.getByRole("dialog");
 
-    const optionElement = await page.waitForSelector(
-      'div.selectbox-control [aria-expanded="true"] [role="option"]'
-    );
-    await optionElement.fill(value);
-  }
+  // const { value } = dialogData;
+
+  await dialogBox.locator("div.form-control").first().click();
+  await dialogBox.locator(`div[id$="-option-${gst}"]`).click();
+
+  await dialogBox.getByRole("tab", { name: "CESS" }).click();
+  // await page.locator("div.form-control input[type='number']").click();
+  await dialogBox.getByPlaceholder("Enter Amount").fill(cess);
+
+  await dialogBox.getByRole("tab", { name: "TDS" }).click();
+  await dialogBox.locator("div.form-control .selectbox-container").click();
+  await dialogBox.locator(`div[id$="-option-${tds}"]`).click();
+
+  await dialogBox.getByRole("tab", { name: "TCS" }).click();
+  // await page.locator("div.form-control input[type='number']").click();
+  await dialogBox.getByPlaceholder("Enter Percentage").fill(tcs);
+  await page.getByRole("button", { name: "Save" }).click();
 }
+// await dialogBox.getByRole("button", { name: "Save" }).click();
+
+//Approve or Reject by PoC/Approver
 export async function expenseApproval(
   page,
   portal,
+  portal2,
   invoice,
   action,
   comment,
   noCmt: boolean
 ) {
   await page.locator(".hide-scrollbar-business");
-  const portalLocator = await page.locator(".text-color-primary");
+  const portalLocator = await page.locator("span.text-base");
   await portalLocator.filter({ hasText: portal }).click();
+  const portalLocator2 = await page.locator("p.text-lg");
+  await portalLocator2.filter({ hasText: portal2 }).click();
+  await page.waitForTimeout(2000);
   await page.getByText("ExpensesExpenses").click();
   await page.getByRole("link", { name: `${invoice}` }).click();
   await page.goForward();
