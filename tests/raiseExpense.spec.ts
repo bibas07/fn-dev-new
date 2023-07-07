@@ -94,7 +94,7 @@ test("FinOps Raise Expense Creation", async ({ page }) => {
   const download3 = await download3Promise;
 });
 
-test("FinOps Raise Expense Right Form", async ({ page }) => {
+test("FinOps Raise Expense Right Side Form", async ({ page }) => {
   const fileNames = "invoice.png"; // Pass this file name as an array
 
   await finOpsLogin(page);
@@ -127,17 +127,24 @@ test("FinOps Raise Expense Right Form", async ({ page }) => {
   await page.getByText("Mumbai", { exact: true }).click();
   await page.getByText("arrow_back_ios_new").click();
   await page.getByText("arrow_back_ios_new").click();
+
   await page
     .getByRole("button", { name: "add_circle_outline Add Client" })
     .click();
+
+  await page.waitForSelector("div[role='dialog']");
   await page
-    .getByText("Drivezy India Travels Private Limited29AAFCD9166L1ZY KA")
+    .locator("div.gap-2.overflow-y-auto.col-flex div.col-flex")
+    .nth(2)
     .click();
+
   await page
     .getByRole("button", { name: "add_circle_outline Select Vendor" })
     .click();
+  await page.waitForSelector("div[role='dialog']");
   await page
-    .getByText("365 Facility Management Private LimitedVendor Managed")
+    .locator("div.gap-2.overflow-y-auto.col-flex div.col-flex")
+    .nth(3)
     .click();
 
   // Required data to raise Expenses
