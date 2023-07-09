@@ -40,43 +40,35 @@ export async function raiseExpenseForm(page, FormFields) {
   }
 }
 
-export async function selectField(page: Page, selectData) {
-  for (const data of selectData) {
-    const { title, value } = data;
-    await page
-      .locator(`div.text-sm:has-text("${title}") ~ div.form-control`)
-      .click();
-    await page.waitForSelector(".selectbox-container [class$='-menu']", {
-      state: "attached",
-    });
-
-    await page.locator(`div[id$="-option-${value}"]`).click();
-  }
-}
-
 //Add value inside dialog box
-export async function raiseExpenseDialog(page: Page, gst, cess, tds, tcs) {
+export async function raiseExpenseDialog(page: Page) {
   const dialogBox = page.getByRole("dialog");
-
-  // const { value } = dialogData;
+  // for (const data of dialogData) {
+  //   const { value } = data;
 
   await dialogBox.locator("div.form-control").first().click();
-  await dialogBox.locator(`div[id$="-option-${gst}"]`).click();
+  await dialogBox
+    .locator(`div[id$="-option-${Math.floor(Math.random() * 4).toString()}"]`)
+    .click();
 
-  await dialogBox.getByRole("tab", { name: "CESS" }).click();
-  // await page.locator("div.form-control input[type='number']").click();
-  await dialogBox.getByPlaceholder("Enter Amount").fill(cess);
+  await dialogBox.getByRole("tab").nth(1).click();
+  await dialogBox
+    .getByPlaceholder("Enter Amount")
+    .fill((Math.random() * 1000).toString());
 
-  await dialogBox.getByRole("tab", { name: "TDS" }).click();
+  await dialogBox.getByRole("tab").nth(2).click();
   await dialogBox.locator("div.form-control .selectbox-container").click();
-  await dialogBox.locator(`div[id$="-option-${tds}"]`).click();
-
-  await dialogBox.getByRole("tab", { name: "TCS" }).click();
+  await dialogBox
+    .locator(`div[id$="-option-${Math.floor(Math.random() * 9).toString()}"]`)
+    .click();
+  await dialogBox.getByRole("tab").nth(3).click();
   // await page.locator("div.form-control input[type='number']").click();
-  await dialogBox.getByPlaceholder("Enter Percentage").fill(tcs);
+  await dialogBox
+    .getByPlaceholder("Enter Percentage")
+    .fill((Math.random() * 100).toString());
   await page.getByRole("button", { name: "Save" }).click();
 }
-// await dialogBox.getByRole("button", { name: "Save" }).click();
+// }
 
 //Approve or Reject by PoC/Approver
 export async function expenseApproval(
@@ -94,7 +86,7 @@ export async function expenseApproval(
   const portalLocator2 = await page.locator("p.text-lg");
   await portalLocator2.filter({ hasText: portal2 }).click();
   await page.waitForTimeout(2000);
-  await page.getByText("ExpensesExpenses").click();
+  await page.locator("a").filter({ hasText: "Expenses" }).click();
   await page.getByRole("link", { name: `${invoice}` }).click();
   await page.goForward();
   await page.waitForTimeout(2000);
